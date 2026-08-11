@@ -529,3 +529,117 @@ html, body {
   color: #f0ede4;
   text-align: center;
 }
+
+.items-header-actions { display: flex; gap: 8px; }
+
+/* ===== Category section headers, inside the items list ===== */
+.category-section { margin-bottom: 6px; }
+.category-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 4px 0 14px;
+}
+.category-header .label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #c9a227;
+  white-space: nowrap;
+}
+.category-header .line {
+  flex: 1;
+  height: 1px;
+  background: repeating-linear-gradient(90deg, #3a3640 0 6px, transparent 6px 12px);
+}
+.category-header .count {
+  font-size: 0.7rem;
+  color: #a39d8f;
+  background: #201d24;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+/* ===== Manage-categories rows ===== */
+.category-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #201d24;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+}
+.category-row .name { font-weight: 600; font-size: 0.88rem; }
+.category-row .name span { color: #a39d8f; font-weight: 400; }
+.remove-category-btn {
+  background: transparent;
+  border: none;
+  color: #b5222b;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+/* ===== Category chips (horizontal scroll, shown inside a category) ===== */
+.category-chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 2px 18px;
+  scrollbar-width: none;
+}
+.category-chips::-webkit-scrollbar { display: none; }
+.category-chip {
+  flex-shrink: 0;
+  background: #201d24;
+  border: 1px solid #3a3640;
+  color: #a39d8f;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.category-chip.active {
+  background: #c9a227;
+  border-color: #c9a227;
+  color: #141217;
+}
+
+/* ===== Category picker (big buttons on first entering a categorized list) ===== */
+.category-picker-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background: #c9a227;
+  color: #141217;
+  border: none;
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 14px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+.category-picker-btn:active { transform: scale(0.98); }
+.category-picker-btn.muted { background: #3a3640; color: #f0ede4; }
+.category-picker-btn .pill-count {
+  background: rgba(0,0,0,0.15);
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+}
+
+.panel-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}

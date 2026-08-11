@@ -1,14 +1,21 @@
 // ================== DATA LAYER ==================
 function loadData() {
   const raw = localStorage.getItem('stub-data');
-  return raw ? JSON.parse(raw) : {};
+  const parsed = raw ? JSON.parse(raw) : {};
+  Object.values(parsed).forEach(list => {
+    list.categories = list.categories || [];
+    list.items = list.items || [];
+    list.items.forEach(item => { if (item.categoryId === undefined) item.categoryId = null; });
+  });
+  return parsed;
 }
 function saveData() {
   localStorage.setItem('stub-data', JSON.stringify(data));
 }
 let data = loadData();
+let activeCategoryId = null; // null = show category picker; '__none__' = uncategorized; or a real category id
 let currentListId = null;
-
+let activeHistoryCategoryId = null;
 let pendingAddBtn = null;
 let pendingMovie = null; // movie waiting to be added once a list is chosen
 
@@ -135,6 +142,26 @@ const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
 const confirmDeletePoster = document.getElementById('confirm-delete-poster');
 const confirmDeleteTitle = document.getElementById('confirm-delete-title');
 
+const categoryBtn = document.getElementById('category-btn');
+const categoryModal = document.getElementById('category-modal');
+const closeCategoryBtn = document.getElementById('close-category-btn');
+const categoryNameInput = document.getElementById('category-name-input');
+const addCategoryBtn = document.getElementById('add-category-btn');
+const categoryListContainer = document.getElementById('category-list-container');
+const categoryListTitle = document.getElementById('category-list-title');
+
+const chooseCategoryModal = document.getElementById('choose-category-modal');
+const chooseCategoryOptions = document.getElementById('choose-category-options');
+const closeChooseCategoryBtn = document.getElementById('close-choose-category-btn');
+
+const categoryChips = document.getElementById('category-chips');
+
+const historyBackBtn = document.getElementById('history-back-btn');
+const historyPanelTitle = document.getElementById('history-panel-title');
+const historyChips = document.getElementById('history-chips');
+
+let pendingCategoryListId = null;
+
 let pendingDeleteIndex = null;
 
 // build color swatches
@@ -165,6 +192,8 @@ function applyState(state) {
   topBar.hidden = false;
   movieGrid.hidden = false;
   confirmDeleteModal.hidden = true;
+  categoryModal.hidden = true;
+  chooseCategoryModal.hidden = true;
 
   if (view === 'profile') {
     overlay.hidden = false;
@@ -178,6 +207,21 @@ function applyState(state) {
     overlay.hidden = false;
     chooseListModal.hidden = false;
     renderChooseListOptions();
+  } else if (view === 'category') {
+    overlay.hidden = false;
+    categoryModal.hidden = false;
+    topBar.hidden = true;
+    movieGrid.hidden = true;
+    itemsScreen.hidden = false;
+    currentListId = state.id;
+    renderItems();
+    categoryListTitle.textContent = `Organize "${data[state.id].title}"`;
+    renderCategoryList();
+  } else if (view === 'chooseCategory') {
+    overlay.hidden = false;
+    chooseCategoryModal.hidden = false;
+    pendingCategoryListId = state.listId;
+    renderChooseCategoryOptions();
   } else if (view === 'items') {
     topBar.hidden = true;
     movieGrid.hidden = true;
@@ -226,16 +270,33 @@ cancelListBtn.addEventListener('click', () => history.back());
 closePanelBtn.addEventListener('click', () => history.back());
 overlay.addEventListener('click', () => history.back());
 panelNewListBtn.addEventListener('click', () => pushView('modal'));
-backBtn.addEventListener('click', () => history.back());
-historyBtn.addEventListener('click', () => pushView('history', { id: currentListId }));
+backBtn.addEventListener('click', () => {
+  const list = data[currentListId];
+  if (list && list.categories.length > 0 && activeCategoryId !== null) {
+    activeCategoryId = null; // step back to the category picker, don't leave the list
+    renderItems();
+  } else {
+    history.back();
+  }
+});
+historyBtn.addEventListener('click', () => {
+  activeHistoryCategoryId = null;
+  pushView('history', { id: currentListId });
+});
+historyBackBtn.addEventListener('click', () => {
+  activeHistoryCategoryId = null;
+  renderHistory();
+});
 closeHistoryBtn.addEventListener('click', () => history.back());
 closeChooseBtn.addEventListener('click', () => { pendingMovie = null; history.back(); });
 chooseNewListBtn.addEventListener('click', () => pushView('modal'));
+categoryBtn.addEventListener('click', () => pushView('category', { id: currentListId }));
+closeCategoryBtn.addEventListener('click', () => history.back());
 
 // ================== LIST CRUD ==================
 function createList(title, description, color) {
   const id = crypto.randomUUID();
-  data[id] = { title, description: description || '', color, items: [] };
+  data[id] = { title, description: description || '', color, items: [], categories: [] };
   saveData();
   return id;
 }
@@ -258,6 +319,21 @@ createListBtn.addEventListener('click', () => {
   }
 });
 
+closeChooseCategoryBtn.addEventListener('click', () => {
+  pendingMovie = null;
+  pendingCategoryListId = null;
+  history.back();
+});
+
+addCategoryBtn.addEventListener('click', () => {
+  const name = categoryNameInput.value.trim();
+  if (!name) { categoryNameInput.focus(); return; }
+  addCategory(currentListId, name);
+  categoryNameInput.value = '';
+  renderCategoryList();
+  renderItems();
+});
+
 function buildTicketCard(id) {
   const list = data[id];
   const count = list.items.length;
@@ -277,6 +353,7 @@ function buildTicketCard(id) {
     <div class="ticket-list-footer">SEAT ${seatNum} · SCREEN 01</div>`;
 
   card.querySelector('.ticket-list-main').addEventListener('click', () => {
+    activeCategoryId = null;
     pushView('items', { id });
   });
   return card;
@@ -294,6 +371,61 @@ function renderModalListsPreview() {
   const ids = Object.keys(data);
   if (ids.length === 0) { modalListsPreview.innerHTML = '<p class="empty">No lists yet.</p>'; return; }
   ids.forEach(id => modalListsPreview.appendChild(buildTicketCard(id)));
+}
+
+function renderCategoryList() {
+  categoryListContainer.innerHTML = '';
+  const list = data[currentListId];
+  if (list.categories.length === 0) {
+    categoryListContainer.innerHTML = '<p class="empty">No categories yet.</p>';
+    return;
+  }
+  list.categories.forEach(cat => {
+    const count = list.items.filter(i => i.categoryId === cat.id).length;
+    const row = document.createElement('div');
+    row.className = 'category-row';
+    row.innerHTML = `
+      <div class="name">${escapeHtml(cat.name)} <span>(${count})</span></div>
+      <button class="remove-category-btn" aria-label="Remove category">✕</button>`;
+    row.querySelector('.remove-category-btn').addEventListener('click', () => {
+      removeCategory(currentListId, cat.id);
+      renderCategoryList();
+      renderItems();
+    });
+    categoryListContainer.appendChild(row);
+  });
+}
+
+function finishAdd(steps = 1) {
+  if (pendingAddBtn) { pendingAddBtn.textContent = '✓ Added'; pendingAddBtn.classList.add('added'); }
+  pendingMovie = null;
+  pendingAddBtn = null;
+  history.go(-steps);
+}
+
+function renderChooseCategoryOptions() {
+  chooseCategoryOptions.innerHTML = '';
+  const list = data[pendingCategoryListId];
+
+  const noneRow = document.createElement('div');
+  noneRow.className = 'choose-list-option';
+  noneRow.innerHTML = `<div class="icon" style="background:#3a364033; color:#a39d8f">—</div><div class="name">No category</div>`;
+  noneRow.addEventListener('click', () => {
+    addItemToList(pendingCategoryListId, pendingMovie, null);
+    finishAdd(2);
+  });
+  chooseCategoryOptions.appendChild(noneRow);
+
+  list.categories.forEach(cat => {
+    const row = document.createElement('div');
+    row.className = 'choose-list-option';
+    row.innerHTML = `<div class="icon" style="background:#c9a22733; color:#c9a227">🏷</div><div class="name">${escapeHtml(cat.name)}</div>`;
+    row.addEventListener('click', () => {
+      addItemToList(pendingCategoryListId, pendingMovie, cat.id);
+      finishAdd(2);
+    });
+    chooseCategoryOptions.appendChild(row);
+  });
 }
 
 function renderChooseListOptions() {
@@ -315,11 +447,12 @@ function renderChooseListOptions() {
       <div class="count">${list.items.length}</div>`;
 
     row.addEventListener('click', () => {
-      addItemToList(id, pendingMovie);
-      if (pendingAddBtn) { pendingAddBtn.textContent = '✓ Added'; pendingAddBtn.classList.add('added'); }
-      pendingMovie = null;
-      pendingAddBtn = null;
-      history.back();
+      if (list.categories.length > 0) {
+        pushView('chooseCategory', { listId: id });
+      } else {
+        addItemToList(id, pendingMovie, null);
+        finishAdd(1);
+      }
     });
 
     chooseListOptions.appendChild(row);
@@ -327,13 +460,26 @@ function renderChooseListOptions() {
 }
 
 // ================== ITEM CRUD ==================
-function addItemToList(listId, movie) {
+function addItemToList(listId, movie, categoryId = null) {
   data[listId].items.push({
     text: movie.text,
     poster: movie.poster || '',
     overview: movie.overview || '',
     done: false,
+    categoryId: categoryId || null,
   });
+  saveData();
+}
+
+function addCategory(listId, name) {
+  const list = data[listId];
+  list.categories.push({ id: crypto.randomUUID(), name });
+  saveData();
+}
+function removeCategory(listId, categoryId) {
+  const list = data[listId];
+  list.categories = list.categories.filter(c => c.id !== categoryId);
+  list.items.forEach(i => { if (i.categoryId === categoryId) i.categoryId = null; });
   saveData();
 }
 
@@ -404,6 +550,7 @@ function renderItems() {
   const list = data[currentListId];
   currentListTitle.textContent = list.title;
   itemsContainer.innerHTML = '';
+  categoryChips.hidden = true;
 
   const total = list.items.length;
   const doneCount = list.items.filter(i => i.done).length;
@@ -416,7 +563,21 @@ function renderItems() {
     return;
   }
 
-  // keep original indices, but only show what's NOT watched yet
+  if (list.categories.length === 0) {
+    renderFlatItems(list);
+    return;
+  }
+
+  if (activeCategoryId === null) {
+    renderCategoryPicker(list);
+  } else {
+    categoryChips.hidden = false;
+    renderCategoryChips(list);
+    renderFilteredItems(list, activeCategoryId);
+  }
+}
+
+function renderFlatItems(list) {
   const toWatch = list.items
     .map((item, index) => ({ item, index }))
     .filter(entry => !entry.item.done);
@@ -425,10 +586,74 @@ function renderItems() {
     itemsContainer.innerHTML = '<p class="empty">All caught up! Check your Watched history 🕐</p>';
     return;
   }
+  toWatch.forEach(({ item, index }) => itemsContainer.appendChild(buildMovieItemCard(item, index)));
+}
 
-  toWatch.forEach(({ item, index }) => {
-    itemsContainer.appendChild(buildMovieItemCard(item, index));
+function renderCategoryPicker(list) {
+  list.categories.forEach(cat => {
+    const count = list.items.filter(i => i.categoryId === cat.id && !i.done).length;
+    const btn = document.createElement('button');
+    btn.className = 'category-picker-btn';
+    btn.innerHTML = `<span>${escapeHtml(cat.name)}</span>${count ? `<span class="pill-count">${count}</span>` : ''}`;
+    btn.addEventListener('click', () => { activeCategoryId = cat.id; renderItems(); });
+    itemsContainer.appendChild(btn);
   });
+
+  const uncategorizedCount = list.items.filter(i => i.categoryId === null && !i.done).length;
+  if (uncategorizedCount > 0) {
+    const btn = document.createElement('button');
+    btn.className = 'category-picker-btn muted';
+    btn.innerHTML = `<span>Uncategorized</span><span class="pill-count">${uncategorizedCount}</span>`;
+    btn.addEventListener('click', () => { activeCategoryId = '__none__'; renderItems(); });
+    itemsContainer.appendChild(btn);
+  }
+}
+
+function renderCategoryChips(list) {
+  categoryChips.innerHTML = '';
+  list.categories.forEach(cat => {
+    const chip = document.createElement('button');
+    chip.className = 'category-chip' + (cat.id === activeCategoryId ? ' active' : '');
+    chip.textContent = cat.name;
+    chip.addEventListener('click', () => { activeCategoryId = cat.id; renderItems(); });
+    categoryChips.appendChild(chip);
+  });
+
+  const uncategorizedCount = list.items.filter(i => i.categoryId === null).length;
+  if (uncategorizedCount > 0) {
+    const chip = document.createElement('button');
+    chip.className = 'category-chip' + (activeCategoryId === '__none__' ? ' active' : '');
+    chip.textContent = 'Uncategorized';
+    chip.addEventListener('click', () => { activeCategoryId = '__none__'; renderItems(); });
+    categoryChips.appendChild(chip);
+  }
+}
+
+function renderFilteredItems(list, categoryId) {
+  const toWatch = list.items
+    .map((item, index) => ({ item, index }))
+    .filter(entry => !entry.item.done)
+    .filter(entry => categoryId === '__none__' ? entry.item.categoryId === null : entry.item.categoryId === categoryId);
+
+  if (toWatch.length === 0) {
+    itemsContainer.innerHTML = '<p class="empty">Nothing here yet.</p>';
+    return;
+  }
+  toWatch.forEach(({ item, index }) => itemsContainer.appendChild(buildMovieItemCard(item, index)));
+}
+
+
+function buildCategorySection(name, entries) {
+  const section = document.createElement('div');
+  section.className = 'category-section';
+  section.innerHTML = `
+    <div class="category-header">
+      <span class="label">${escapeHtml(name)}</span>
+      <div class="line"></div>
+      <span class="count">${entries.length}</span>
+    </div>`;
+  entries.forEach(({ item, index }) => section.appendChild(buildMovieItemCard(item, index)));
+  return section;
 }
 
 function toggleItem(index) {
@@ -442,17 +667,86 @@ function toggleItem(index) {
 function renderHistory() {
   const list = data[currentListId];
   historyContainer.innerHTML = '';
-  const watched = list.items.filter(i => i.done);
+  historyChips.hidden = true;
+  historyBackBtn.hidden = true;
+  historyPanelTitle.textContent = 'Watched';
+
+  const watched = list.items
+    .map((item, index) => ({ item, index }))
+    .filter(entry => entry.item.done);
 
   if (watched.length === 0) {
     historyContainer.innerHTML = '<p class="empty">Nothing watched yet.</p>';
     return;
   }
 
-  watched.forEach((item) => {
-    const realIndex = list.items.indexOf(item);
-    historyContainer.appendChild(buildMovieItemCard(item, realIndex));
+  if (list.categories.length === 0) {
+    watched.forEach(({ item, index }) => historyContainer.appendChild(buildMovieItemCard(item, index)));
+    return;
+  }
+
+  if (activeHistoryCategoryId === null) {
+    renderHistoryCategoryPicker(list, watched);
+  } else {
+    historyBackBtn.hidden = false;
+    const activeCat = list.categories.find(c => c.id === activeHistoryCategoryId);
+    historyPanelTitle.textContent = activeCat ? activeCat.name : 'Uncategorized';
+    historyChips.hidden = false;
+    renderHistoryChips(list, watched);
+    renderFilteredHistory(watched, activeHistoryCategoryId);
+  }
+}
+
+function renderHistoryCategoryPicker(list, watched) {
+  list.categories.forEach(cat => {
+    const count = watched.filter(({ item }) => item.categoryId === cat.id).length;
+    if (count === 0) return;
+    const btn = document.createElement('button');
+    btn.className = 'category-picker-btn';
+    btn.innerHTML = `<span>${escapeHtml(cat.name)}</span><span class="pill-count">${count}</span>`;
+    btn.addEventListener('click', () => { activeHistoryCategoryId = cat.id; renderHistory(); });
+    historyContainer.appendChild(btn);
   });
+
+  const uncategorizedCount = watched.filter(({ item }) => item.categoryId === null).length;
+  if (uncategorizedCount > 0) {
+    const btn = document.createElement('button');
+    btn.className = 'category-picker-btn muted';
+    btn.innerHTML = `<span>Uncategorized</span><span class="pill-count">${uncategorizedCount}</span>`;
+    btn.addEventListener('click', () => { activeHistoryCategoryId = '__none__'; renderHistory(); });
+    historyContainer.appendChild(btn);
+  }
+}
+
+function renderHistoryChips(list, watched) {
+  historyChips.innerHTML = '';
+  list.categories.forEach(cat => {
+    if (!watched.some(({ item }) => item.categoryId === cat.id)) return;
+    const chip = document.createElement('button');
+    chip.className = 'category-chip' + (cat.id === activeHistoryCategoryId ? ' active' : '');
+    chip.textContent = cat.name;
+    chip.addEventListener('click', () => { activeHistoryCategoryId = cat.id; renderHistory(); });
+    historyChips.appendChild(chip);
+  });
+
+  if (watched.some(({ item }) => item.categoryId === null)) {
+    const chip = document.createElement('button');
+    chip.className = 'category-chip' + (activeHistoryCategoryId === '__none__' ? ' active' : '');
+    chip.textContent = 'Uncategorized';
+    chip.addEventListener('click', () => { activeHistoryCategoryId = '__none__'; renderHistory(); });
+    historyChips.appendChild(chip);
+  }
+}
+
+function renderFilteredHistory(watched, categoryId) {
+  const filtered = watched.filter(({ item }) =>
+    categoryId === '__none__' ? item.categoryId === null : item.categoryId === categoryId
+  );
+  if (filtered.length === 0) {
+    historyContainer.innerHTML = '<p class="empty">Nothing here yet.</p>';
+    return;
+  }
+  filtered.forEach(({ item, index }) => historyContainer.appendChild(buildMovieItemCard(item, index)));
 }
 
 // ================== INIT ==================

@@ -35,7 +35,10 @@
       <div id="items-header">
         <button id="back-btn" class="icon-btn plain" aria-label="Back">←</button>
         <h1 id="current-list-title"></h1>
-        <button id="history-btn" class="icon-btn plain" aria-label="Watched history">🕐</button>
+        <div class="items-header-actions">
+          <button id="category-btn" class="icon-btn plain" aria-label="Categories">🏷</button>
+          <button id="history-btn" class="icon-btn plain" aria-label="Watched history">🕐</button>
+        </div>
       </div>
 
       <div class="progress-section">
@@ -45,6 +48,9 @@
           <p id="progress-fraction"></p>
         </div>
       </div>
+
+      <div id="category-chips" class="category-chips" hidden></div>
+      <div id="items-container"></div>
 
       <div id="items-container"></div>
     </section>
@@ -114,6 +120,36 @@
       </div>
     </div>
 
+    <!-- Manage categories sheet -->
+    <div id="category-modal" class="sheet" hidden>
+      <div class="sheet-handle"></div>
+      <div class="sheet-top-row">
+        <span class="admit-one">CATEGORIES</span>
+        <button id="close-category-btn" class="icon-btn plain" aria-label="Close">✕</button>
+      </div>
+      <h2 class="sheet-title" id="category-list-title">Organize your stubs</h2>
+
+      <div class="input-with-icon">
+        <span class="input-icon">🏷</span>
+        <input id="category-name-input" placeholder="e.g. Phase 1" autocomplete="off">
+      </div>
+      <button id="add-category-btn" class="btn-primary" style="width:100%; margin-top:10px;">+ Add category</button>
+
+      <div class="sheet-divider"></div>
+      <div id="category-list-container"></div>
+    </div>
+
+    <!-- Choose category sheet (when adding a movie into a categorized list) -->
+    <div id="choose-category-modal" class="sheet" hidden>
+      <div class="sheet-handle"></div>
+      <div class="sheet-top-row">
+        <span class="admit-one">ADMIT ONE</span>
+        <button id="close-choose-category-btn" class="icon-btn plain" aria-label="Close">✕</button>
+      </div>
+      <h2 class="sheet-title">Which category?</h2>
+      <div id="choose-category-options"></div>
+    </div>
+
     <!-- Profile panel -->
     <div id="profile-panel" class="panel" hidden>
       <div class="panel-header">
@@ -138,9 +174,13 @@
     <!-- Watched history panel -->
     <div id="history-panel" class="panel" hidden>
       <div class="panel-header">
-        <h3>Watched</h3>
+        <div class="panel-header-left">
+          <button id="history-back-btn" class="icon-btn plain" aria-label="Back" hidden>←</button>
+          <h3 id="history-panel-title">Watched</h3>
+        </div>
         <button id="close-history-btn" class="icon-btn plain" aria-label="Close">✕</button>
       </div>
+      <div id="history-chips" class="category-chips" hidden></div>
       <div id="history-container"></div>
     </div>
 
