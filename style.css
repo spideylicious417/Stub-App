@@ -362,13 +362,43 @@ html, body {
 .movie-item-card::before { left: -9px; }
 .movie-item-card::after { right: -9px; }
 
+.swipe-area {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+}
+
+.delete-btn {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 64px;
+  background: #b5222b;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
 .stub-body {
   display: flex;
   align-items: stretch;
-  flex: 1;
+  width: 100%;
+  position: relative;
   background: #201d24;
   border-radius: 14px;
-  overflow: hidden; /* rounds the poster's left corners cleanly */
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.25s ease;
+}
+
+.movie-item-card.menu-open .stub-body {
+  transform: translateX(64px);
 }
 
 .movie-item-poster {
@@ -476,3 +506,26 @@ html, body {
 }
 .choose-list-option .name { font-weight: 600; font-size: 0.9rem; flex: 1; }
 .choose-list-option .count { font-size: 0.78rem; color: #a39d8f; }
+
+.confirm-delete-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 8px 0 18px;
+}
+.confirm-delete-poster {
+  width: 90px;
+  height: 135px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #3a3640;
+  border: 2px solid #b5222b;
+  margin-bottom: 10px;
+}
+.confirm-delete-poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.confirm-delete-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #f0ede4;
+  text-align: center;
+}

@@ -127,6 +127,16 @@ const chooseListOptions = document.getElementById('choose-list-options');
 const closeChooseBtn = document.getElementById('close-choose-btn');
 const chooseNewListBtn = document.getElementById('choose-new-list-btn');
 
+// add near your other element refs
+const confirmDeleteModal = document.getElementById('confirm-delete-modal');
+const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+
+const confirmDeletePoster = document.getElementById('confirm-delete-poster');
+const confirmDeleteTitle = document.getElementById('confirm-delete-title');
+
+let pendingDeleteIndex = null;
+
 // build color swatches
 LIST_COLORS.forEach((c, i) => {
   const dot = document.createElement('div');
@@ -154,6 +164,7 @@ function applyState(state) {
   itemsScreen.hidden = true;
   topBar.hidden = false;
   movieGrid.hidden = false;
+  confirmDeleteModal.hidden = true;
 
   if (view === 'profile') {
     overlay.hidden = false;
@@ -173,6 +184,20 @@ function applyState(state) {
     itemsScreen.hidden = false;
     currentListId = state.id;
     renderItems();
+  } else if (view === 'confirmDelete') {
+    confirmDeletePoster.innerHTML = state.poster ? `<img src="${state.poster}" alt="">` : '';
+    confirmDeleteTitle.textContent = state.title || '';
+    overlay.hidden = false;
+    confirmDeleteModal.hidden = false;
+    topBar.hidden = true;
+    movieGrid.hidden = true;
+    itemsScreen.hidden = false;
+    currentListId = state.id;
+    renderItems();
+    if (state.fromHistory) {
+      historyPanel.hidden = false;
+      renderHistory();
+    }
   } else if (view === 'history') {
     topBar.hidden = true;
     movieGrid.hidden = true;
@@ -316,19 +341,63 @@ function buildMovieItemCard(item, index) {
   const row = document.createElement('div');
   row.className = 'movie-item-card';
   row.innerHTML = `
-    <div class="stub-body">
-      <div class="movie-item-poster">${item.poster ? `<img src="${item.poster}" alt="">` : ''}</div>
-      <div class="stub-tear"><span class="tear-label">ADMIT ONE</span></div>
-      <div class="movie-item-info">
-        <div class="movie-item-title">${escapeHtml(item.text)}</div>
-        <div class="movie-item-desc">${escapeHtml(item.overview || '')}</div>
+    <div class="swipe-area">
+      <button class="delete-btn" aria-label="Delete">🗑</button>
+      <div class="stub-body">
+        <div class="movie-item-poster">${item.poster ? `<img src="${item.poster}" alt="">` : ''}</div>
+        <div class="stub-tear"><span class="tear-label">ADMIT ONE</span></div>
+        <div class="movie-item-info">
+          <div class="movie-item-title">${escapeHtml(item.text)}</div>
+          <div class="movie-item-desc">${escapeHtml(item.overview || '')}</div>
+        </div>
       </div>
     </div>
     <button class="check-circle ${item.done ? 'checked' : ''}">${item.done ? '✓' : ''}</button>`;
 
-  row.querySelector('.check-circle').addEventListener('click', () => toggleItem(index));
+  row.querySelector('.stub-body').addEventListener('click', () => {
+    const wasOpen = row.classList.contains('menu-open');
+    document.querySelectorAll('.movie-item-card.menu-open').forEach(c => c.classList.remove('menu-open'));
+    if (!wasOpen) row.classList.add('menu-open');
+  });
+
+  row.querySelector('.check-circle').addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleItem(index);
+  });
+
+  row.querySelector('.delete-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    pendingDeleteIndex = index;
+    pushView('confirmDelete', {
+      id: currentListId,
+      fromHistory: !historyPanel.hidden,
+      poster: item.poster,
+      title: item.text,
+    });
+  });
   return row;
 }
+
+cancelDeleteBtn.addEventListener('click', () => {
+  pendingDeleteIndex = null;
+  history.back();
+});
+
+confirmDeleteBtn.addEventListener('click', () => {
+  data[currentListId].items.splice(pendingDeleteIndex, 1);
+  saveData();
+  pendingDeleteIndex = null;
+  history.back(); // closes the confirm sheet
+  renderItems();
+  if (!historyPanel.hidden) renderHistory();
+});
+
+// close any open delete menu when tapping elsewhere
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.movie-item-card')) {
+    document.querySelectorAll('.movie-item-card.menu-open').forEach(c => c.classList.remove('menu-open'));
+  }
+});
 
 // ================== ITEMS SCREEN ==================
 function renderItems() {

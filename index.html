@@ -100,6 +100,20 @@
       <button id="choose-new-list-btn" class="btn-outline" style="width:100%; margin-top: 14px;">+ New list</button>
     </div>
 
+    <!-- Confirm delete sheet -->
+    <div id="confirm-delete-modal" class="sheet" hidden>
+      <div class="sheet-handle"></div>
+      <div class="confirm-delete-preview">
+        <div id="confirm-delete-poster" class="confirm-delete-poster"></div>
+        <div id="confirm-delete-title" class="confirm-delete-title"></div>
+      </div>
+      <h2 class="sheet-title" style="text-align:center; margin-bottom: 20px;">Remove this stub?</h2>
+      <div class="sheet-actions">
+        <button id="cancel-delete-btn" class="btn-outline">Cancel</button>
+        <button id="confirm-delete-btn" class="btn-primary" style="background:#b5222b;">Yes, remove</button>
+      </div>
+    </div>
+
     <!-- Profile panel -->
     <div id="profile-panel" class="panel" hidden>
       <div class="panel-header">
