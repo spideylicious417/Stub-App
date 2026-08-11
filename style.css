@@ -1,0 +1,478 @@
+[hidden] {
+  display: none !important;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: #141217;
+  color: #f0ede4;
+  font-family: 'Poppins', system-ui, sans-serif;
+}
+
+#app {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 20px 16px 100px;
+  min-height: 100vh;
+  background: #141217;
+}
+
+#top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  margin: -20px -16px 20px;
+  /* no background here anymore — each child sets its own */
+}
+
+#app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1c1920;   /* gray bar for STUB + profile */
+  padding: 16px 20px;
+}
+
+#discover-toolbar {
+  background: #141217;   /* same black as the page/body */
+  padding: 16px 20px 0;
+}
+
+.toolbar-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;  /* breathing room before the sticky bar's bottom edge */
+}
+
+/* ===== Bottom toolbar bar ===== */
+#tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  background: #1c1920;
+  padding: 24px 0 34px;
+  display: flex;
+  justify-content: center;
+}
+
+/* fab no longer needs to be independently fixed — it's centered inside #tab-bar now */
+.fab {
+  position: static;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: #b5222b;
+  color: white;
+  font-size: 1.6rem;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+}
+.logo {
+  color: #b5222b;
+  font-weight: 800;
+  font-size: 1.4rem;
+  letter-spacing: 2px;
+}
+.icon-btn {
+  background: transparent;
+  border: 1px solid #3a3640;
+  color: #f0ede4;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+/* ===== Discover screen ===== */
+#discover-screen h2 { margin-bottom: 14px; }
+
+.toolbar-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.search-pill {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #201d24;
+  border: 1px solid #3a3640;
+  border-radius: 999px;
+  padding: 8px 14px;
+}
+.search-pill input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #f0ede4;
+}
+
+/* ===== Movie grid + ticket cards ===== */
+.movie-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: start;
+  gap: 10px;
+  padding-bottom: 90px; /* room for the FAB */
+}
+
+.movie-card {
+  border-radius: 10px;
+  overflow: hidden;
+  background: #201d24;
+  cursor: pointer;
+}
+
+.poster-wrap {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  background: #3a3640;
+}
+.poster-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.info-panel {
+  position: relative;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+.movie-card.open .info-panel { max-height: 180px; }
+
+.info-panel::before {
+  content: "";
+  display: block;
+  height: 10px;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #b5222b 50%),
+    linear-gradient(-45deg, transparent 50%, #b5222b 50%);
+  background-size: 16px 16px;
+  background-position: 0 0, 8px 0;
+  background-repeat: repeat-x;
+}
+
+.info-panel-inner {
+  background: #b5222b;
+  padding: 10px;
+}
+
+.info-panel-inner { padding: 10px; }
+.info-panel h3 { font-size: 0.8rem; line-height: 1.2; margin-bottom: 2px; }
+.info-panel .meta { font-size: 0.68rem; opacity: 0.85; margin-bottom: 4px; }
+.info-panel .overview {
+  font-size: 0.66rem;
+  opacity: 0.85;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.add-btn {
+  background: white;
+  color: #b5222b;
+  font-weight: 700;
+  font-size: 0.72rem;
+  padding: 5px 10px;
+  border-radius: 6px;
+  width: 100%;
+}
+.add-btn.added { background: #c9a227; color: #141217; }
+
+/* ===== Floating action button ===== */
+.fab {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: #b5222b;
+  color: white;
+  font-size: 1.6rem;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+}
+
+/* ===== Overlay ===== */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 20;
+}
+
+/* ===== Bottom sheet (New list) ===== */
+.sheet {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  background: #1c1920;
+  border-radius: 20px 20px 0 0;
+  padding: 10px 20px 24px;
+  z-index: 30;
+  max-height: 88vh;
+  overflow-y: auto;
+}
+.sheet-handle { width: 40px; height: 4px; background: #3a3640; border-radius: 999px; margin: 6px auto 14px; }
+.sheet-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.admit-one { color: #c9a227; font-size: 0.7rem; font-weight: 700; letter-spacing: 2px; }
+.icon-btn.plain { border: none; background: transparent; }
+.sheet-title { font-size: 1.3rem; margin-bottom: 16px; }
+
+.field-label { display: block; font-size: 0.78rem; color: #a39d8f; margin: 14px 0 6px; }
+.input-with-icon {
+  display: flex; align-items: center; gap: 8px;
+  background: #201d24; border: 1px solid #b5222b; border-radius: 10px; padding: 10px 14px;
+}
+.input-with-icon input { flex: 1; background: transparent; border: none; outline: none; color: #f0ede4; }
+#list-desc-input {
+  width: 100%; background: #201d24; border: 1px solid #3a3640; border-radius: 10px;
+  padding: 10px 14px; color: #f0ede4; resize: none; font-family: inherit;
+}
+
+.color-picker { display: flex; gap: 10px; }
+.color-dot {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 0.8rem; cursor: pointer; border: 2px solid transparent;
+}
+.color-dot.selected { border-color: white; }
+
+.sheet-actions { display: flex; gap: 10px; margin-top: 22px; }
+.btn-outline, .btn-primary { flex: 1; padding: 12px; border-radius: 10px; font-weight: 600; border: none; cursor: pointer; }
+.btn-outline { background: transparent; border: 1px solid #3a3640; color: #f0ede4; }
+.btn-primary { background: #b5222b; color: white; }
+.btn-primary.small { flex: none; padding: 8px 14px; font-size: 0.8rem; }
+
+.sheet-divider { height: 1px; background: #3a3640; margin: 20px 0 12px; }
+
+/* ===== Ticket-style list card ===== */
+.ticket-list-card { background: #201d24; border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
+.ticket-list-main { display: flex; align-items: center; gap: 12px; padding: 12px 14px; cursor: pointer; }
+.ticket-list-icon {
+  width: 38px; height: 38px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;
+}
+.ticket-list-info { flex: 1; }
+.ticket-list-info .name { font-weight: 600; font-size: 0.92rem; }
+.ticket-list-info .desc { font-size: 0.75rem; color: #a39d8f; margin-top: 2px; }
+.ticket-list-count { font-size: 0.85rem; color: #a39d8f; }
+.ticket-list-footer { position: relative; padding: 6px 14px; font-size: 0.62rem; letter-spacing: 1px; color: #a39d8f; }
+.ticket-list-footer::before {
+  content: ""; display: block; height: 1px; margin-bottom: 6px;
+  background: repeating-linear-gradient(90deg, #3a3640 0 6px, transparent 6px 12px);
+}
+
+/* ===== Profile panel ===== */
+.panel {
+  position: fixed; top: 0; right: 0; width: 82%; max-width: 380px; height: 100%;
+  background: #141217; z-index: 30; padding: 20px; overflow-y: auto;
+  box-shadow: -6px 0 20px rgba(0,0,0,0.4);
+}
+.panel-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+.profile-id { display: flex; align-items: center; gap: 10px; }
+.avatar {
+  width: 42px; height: 42px; border-radius: 50%; background: #201d24; border: 2px solid #b5222b;
+  display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+}
+.profile-name { font-weight: 700; font-size: 0.95rem; }
+.profile-handle { font-size: 0.75rem; color: #a39d8f; }
+.panel-list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.panel-list-header h3 { font-size: 1rem; }
+
+/* ===== Items screen (in case these got lost while editing) ===== */
+#back-btn { background: transparent; color: #a39d8f; padding: 8px 0; margin-bottom: 8px; }
+.item-row { display: flex; justify-content: space-between; align-items: center; background: #201d24; border-radius: 10px; padding: 12px 16px; margin-bottom: 8px; }
+.item-row label { display: flex; align-items: center; gap: 10px; flex: 1; }
+.item-row input[type="checkbox"] { width: 18px; height: 18px; }
+.item-row.done span { text-decoration: line-through; color: #a39d8f; }
+.empty { color: #a39d8f; padding: 20px 0; text-align: center; }
+
+/* ===== Items screen header ===== */
+#items-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0 16px;
+}
+#items-header h1 { font-size: 1.1rem; flex: 1; text-align: center; }
+
+/* ===== Progress ring ===== */
+.progress-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 4px 20px;
+}
+@property --pct {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
+.progress-ring {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: conic-gradient(#b5222b calc(var(--pct, 0) * 1%), #2a2630 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 10px), #000 calc(100% - 10px));
+          mask: radial-gradient(farthest-side, transparent calc(100% - 10px), #000 calc(100% - 10px));
+  transition: --pct 0.6s ease;
+}
+.progress-info h2 { font-size: 1.15rem; }
+.progress-info p { color: #a39d8f; font-size: 0.85rem; margin-top: 4px; }
+
+/* ===== Movie item card (ticket-stub style, in checklist) ===== */
+.movie-item-card {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  margin-bottom: 22px;
+  min-height: 84px;
+}
+
+/* die-cut notches at the TRUE outer edges of the whole stub */
+.movie-item-card::before,
+.movie-item-card::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  background: #141217; /* must match the page background */
+  border-radius: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+}
+.movie-item-card::before { left: -9px; }
+.movie-item-card::after { right: -9px; }
+
+.stub-body {
+  display: flex;
+  align-items: stretch;
+  flex: 1;
+  background: #201d24;
+  border-radius: 14px;
+  overflow: hidden; /* rounds the poster's left corners cleanly */
+}
+
+.movie-item-poster {
+  width: 64px;
+  flex-shrink: 0;
+  background: #3a3640;
+}
+.movie-item-poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* the tear line: dashed rule + two punched notches + rotated "ADMIT ONE" */
+.stub-tear {
+  position: relative;
+  flex-shrink: 0;
+  width: 0;
+  margin: 12px 16px;
+  border-left: 2px dashed #46414c;
+}
+.stub-tear::before,
+.stub-tear::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  background: #141217;
+  border-radius: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+.stub-tear::before { top: -18px; }
+.stub-tear::after { bottom: -18px; }
+
+.tear-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(180deg);
+  writing-mode: vertical-rl;
+  font-size: 0.5rem;
+  letter-spacing: 2px;
+  color: #5c5761;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.movie-item-info {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 44px 10px 0; /* right padding clears the floating check button */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.movie-item-title { font-size: 0.85rem; font-weight: 600; line-height: 1.25; }
+.movie-item-desc {
+  font-size: 0.7rem;
+  color: #a39d8f;
+  margin-top: 3px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* the checkbox now floats like a stamp right over the punched edge */
+.check-circle {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid #b5222b;
+  background: #141217;
+  z-index: 4;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: transparent;
+  font-size: 0.8rem;
+}
+.check-circle.checked {
+  background: #b5222b;
+  color: white;
+}
+
+/* history panel reuses .panel from profile — no extra rules needed */
+
+/* ===== Choose-list options ===== */
+.choose-list-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #201d24;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+.choose-list-option:hover { background: #2a2630; }
+.choose-list-option .icon {
+  width: 34px; height: 34px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0;
+}
+.choose-list-option .name { font-weight: 600; font-size: 0.9rem; flex: 1; }
+.choose-list-option .count { font-size: 0.78rem; color: #a39d8f; }

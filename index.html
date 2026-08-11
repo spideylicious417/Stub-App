@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stub</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+
+    <div id="top-bar">
+      <header id="app-header">
+        <h1 class="logo">STUB</h1>
+        <button id="profile-btn" class="icon-btn" aria-label="Profile">👤</button>
+      </header>
+
+      <section id="discover-toolbar">
+        <h2>Movies</h2>
+        <div class="toolbar-row">
+          <div class="search-pill">
+            <span class="search-icon">🔍</span>
+            <input id="discover-search" placeholder="Search movie" autocomplete="off">
+          </div>
+          <button id="filter-btn" class="icon-btn" aria-label="Filter">⚙</button>
+        </div>
+      </section>
+    </div>
+
+    <div id="movie-grid" class="movie-grid"></div>
+
+    <!-- Items inside one list -->
+    <section id="items-screen" hidden>
+      <div id="items-header">
+        <button id="back-btn" class="icon-btn plain" aria-label="Back">←</button>
+        <h1 id="current-list-title"></h1>
+        <button id="history-btn" class="icon-btn plain" aria-label="Watched history">🕐</button>
+      </div>
+
+      <div class="progress-section">
+        <div id="progress-ring" class="progress-ring"></div>
+        <div class="progress-info">
+          <h2>Progress made</h2>
+          <p id="progress-fraction"></p>
+        </div>
+      </div>
+
+      <div id="items-container"></div>
+    </section>
+
+    <footer id="tab-bar">
+      <button id="fab-btn" class="fab" aria-label="Add">+</button>
+    </footer>
+
+    <div id="overlay" class="overlay" hidden></div>
+
+    <!-- New List bottom sheet -->
+    <div id="new-list-modal" class="sheet" hidden>
+      <div class="sheet-handle"></div>
+      <div class="sheet-top-row">
+        <span class="admit-one">ADMIT ONE</span>
+        <button id="close-modal-btn" class="icon-btn plain" aria-label="Close">✕</button>
+      </div>
+      <h2 class="sheet-title">New list</h2>
+
+      <label class="field-label">Name</label>
+      <div class="input-with-icon">
+        <span class="input-icon">🎬</span>
+        <input id="list-name-input" placeholder="e.g. Weekend Watchlist" autocomplete="off">
+      </div>
+
+      <label class="field-label">Description (optional)</label>
+      <textarea id="list-desc-input" placeholder="What's this list for?" rows="2"></textarea>
+
+      <label class="field-label">Color</label>
+      <div id="color-picker" class="color-picker"></div>
+
+      <div class="sheet-actions">
+        <button id="cancel-list-btn" class="btn-outline">Cancel</button>
+        <button id="create-list-btn" class="btn-primary">Create list</button>
+      </div>
+
+      <div class="sheet-divider"></div>
+      <p class="field-label">Your lists</p>
+      <div id="modal-lists-preview"></div>
+    </div>
+
+    <!-- Choose-list bottom sheet (for adding a movie) -->
+    <div id="choose-list-modal" class="sheet" hidden>
+      <div class="sheet-handle"></div>
+      <div class="sheet-top-row">
+        <span class="admit-one">ADMIT ONE</span>
+        <button id="close-choose-btn" class="icon-btn plain" aria-label="Close">✕</button>
+      </div>
+      <h2 class="sheet-title" id="choose-list-title">Add to which list?</h2>
+
+      <div id="choose-list-options"></div>
+
+      <button id="choose-new-list-btn" class="btn-outline" style="width:100%; margin-top: 14px;">+ New list</button>
+    </div>
+
+    <!-- Profile panel -->
+    <div id="profile-panel" class="panel" hidden>
+      <div class="panel-header">
+        <div class="profile-id">
+          <div class="avatar">👤</div>
+          <div>
+            <div class="profile-name">You</div>
+            <div class="profile-handle">@moviestub</div>
+          </div>
+        </div>
+        <button id="close-panel-btn" class="icon-btn plain" aria-label="Close">✕</button>
+      </div>
+
+      <div class="panel-list-header">
+        <h3>My List</h3>
+        <button id="panel-new-list-btn" class="btn-primary small">+ New list</button>
+      </div>
+
+      <div id="panel-lists-container"></div>
+    </div>
+
+    <!-- Watched history panel -->
+    <div id="history-panel" class="panel" hidden>
+      <div class="panel-header">
+        <h3>Watched</h3>
+        <button id="close-history-btn" class="icon-btn plain" aria-label="Close">✕</button>
+      </div>
+      <div id="history-container"></div>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
