@@ -152,16 +152,19 @@
 
     <!-- Profile panel -->
     <div id="profile-panel" class="panel" hidden>
-      <div class="profile-id">
-        <div class="avatar-wrap">
-          <div id="profile-avatar" class="avatar">👤</div>
-          <button id="avatar-edit-btn" class="avatar-edit-btn" aria-label="Change photo">📷</button>
-          <input id="avatar-file-input" type="file" accept="image/*" hidden>
+      <div class="panel-header">
+        <div class="profile-id">
+          <div class="avatar-wrap">
+            <div id="profile-avatar" class="avatar">👤</div>
+            <button id="avatar-edit-btn" class="avatar-edit-btn" aria-label="Change photo">📷</button>
+            <input id="avatar-file-input" type="file" accept="image/*" hidden>
+          </div>
+          <div>
+            <div class="profile-name">You</div>
+            <div class="profile-handle">@moviestub</div>
+          </div>
         </div>
-        <div>
-          <div class="profile-name">You</div>
-          <div class="profile-handle">@moviestub</div>
-        </div>
+        <button id="close-panel-btn" class="icon-btn plain" aria-label="Close">✕</button>
       </div>
 
       <div class="panel-list-header">
