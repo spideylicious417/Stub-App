@@ -161,8 +161,30 @@ const historyPanelTitle = document.getElementById('history-panel-title');
 const historyChips = document.getElementById('history-chips');
 
 let pendingCategoryListId = null;
-
 let pendingDeleteIndex = null;
+
+const PHOTO_KEY = 'stub-profile-photo';
+const profileAvatar = document.getElementById('profile-avatar');
+const avatarEditBtn = document.getElementById('avatar-edit-btn');
+const avatarFileInput = document.getElementById('avatar-file-input');
+
+function renderAvatar() {
+  const photo = localStorage.getItem(PHOTO_KEY);
+  profileAvatar.innerHTML = photo ? `<img src="${photo}" alt="Profile photo">` : '👤';
+}
+
+avatarEditBtn.addEventListener('click', () => avatarFileInput.click());
+
+avatarFileInput.addEventListener('change', () => {
+  const file = avatarFileInput.files[0];
+  if (!file || !file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    localStorage.setItem(PHOTO_KEY, reader.result);
+    renderAvatar();
+  };
+  reader.readAsDataURL(file);
+});
 
 // build color swatches
 LIST_COLORS.forEach((c, i) => {
@@ -198,6 +220,7 @@ function applyState(state) {
   if (view === 'profile') {
     overlay.hidden = false;
     profilePanel.hidden = false;
+    renderAvatar();
     renderPanelLists();
   } else if (view === 'modal') {
     overlay.hidden = false;

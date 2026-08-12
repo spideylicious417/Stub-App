@@ -643,3 +643,37 @@ html, body {
   align-items: center;
   gap: 10px;
 }
+
+/* ===== Avatar + photo upload ===== */
+.avatar-wrap {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+}
+.avatar {
+  width: 42px; height: 42px; border-radius: 50%; background: #201d24; border: 2px solid #b5222b;
+  display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+  overflow: hidden;
+}
+.avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.avatar-edit-btn {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #b5222b;
+  border: 2px solid #141217;
+  color: white;
+  font-size: 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+.avatar-edit-btn:active { transform: scale(0.9); }
