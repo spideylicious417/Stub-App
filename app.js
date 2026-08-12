@@ -160,6 +160,9 @@ const historyBackBtn = document.getElementById('history-back-btn');
 const historyPanelTitle = document.getElementById('history-panel-title');
 const historyChips = document.getElementById('history-chips');
 
+const profileBtnAvatar = document.getElementById('profile-btn-avatar');
+
+
 let pendingCategoryListId = null;
 let pendingDeleteIndex = null;
 
@@ -170,7 +173,9 @@ const avatarFileInput = document.getElementById('avatar-file-input');
 
 function renderAvatar() {
   const photo = localStorage.getItem(PHOTO_KEY);
-  profileAvatar.innerHTML = photo ? `<img src="${photo}" alt="Profile photo">` : '👤';
+  const inner = photo ? `<img src="${photo}" alt="Profile photo">` : '👤';
+  profileAvatar.innerHTML = inner;
+  profileBtnAvatar.innerHTML = inner;
 }
 
 avatarEditBtn.addEventListener('click', () => avatarFileInput.click());
@@ -775,3 +780,4 @@ function renderFilteredHistory(watched, categoryId) {
 // ================== INIT ==================
 history.replaceState({ view: 'home' }, '');
 fetchPopularMovies();
+renderAvatar();

@@ -677,3 +677,14 @@ html, body {
   transition: transform 0.15s ease;
 }
 .avatar-edit-btn:active { transform: scale(0.9); }
+
+#profile-btn {
+  padding: 0;
+  overflow: hidden;
+}
+#profile-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
